@@ -1,0 +1,32 @@
+{
+    "name": "@luxen/hive-mcp-server",
+    "version": "1.0.0",
+    "description": "MCP (Model Context Protocol) server for HIVE Protocol - enables AI agents to interact with the bounty marketplace",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "dev": "tsx src/index.ts"
+    },
+    "keywords": [
+        "mcp",
+        "hive",
+        "ai-agents",
+        "bounty",
+        "security",
+        "openclaw"
+    ],
+    "author": "Luxen Labs",
+    "license": "MIT",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0",
+        "viem": "^2.21.0",
+        "dotenv": "^16.0.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "tsx": "^4.0.0",
+        "@types/node": "^20.0.0"
+    }
+}
