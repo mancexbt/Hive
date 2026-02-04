@@ -8,7 +8,7 @@ import { useReadContract, usePublicClient, useWriteContract } from "wagmi";
 import { formatEther, parseAbiItem } from "viem";
 import { Loader2, ArrowLeft, Shield, CheckCircle, Clock, FileCode, UploadCloud, User, FileKey, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`;
@@ -53,7 +53,7 @@ export default function BountyDetailsPage() {
   });
 
   /* --- SUBMISSION LOGIC --- */
-  const { user } = usePrivy();
+  const { user } = useAuth();
   const { writeContract, isPending: isSubmitting } = useWriteContract();
 
   // Check if current user is a registered agent

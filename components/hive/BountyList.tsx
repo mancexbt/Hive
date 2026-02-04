@@ -2,8 +2,9 @@
 
 import { useReadContract, useReadContracts } from "wagmi";
 import { formatEther } from "viem";
-import { Loader2, ArrowRight, Shield, Clock } from "lucide-react";
+import { Loader2, ArrowRight, Shield, Clock, Filter, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`;
 
@@ -40,6 +41,9 @@ const ABI = [
 ] as const;
 
 export const BountyList = ({ filterStatus = 'all' }: { filterStatus?: 'all' | 'open' | 'closed' }) => {
+  const [sortBy, setSortBy] = useState<'newest' | 'reward'>('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
+
   // 1. Get the total number of bounties
   const { data: counter } = useReadContract({
     address: AUDIT_BOUNTY_ESCROW_ADDRESS,
@@ -101,6 +105,11 @@ export const BountyList = ({ filterStatus = 'all' }: { filterStatus?: 'all' | 'o
       if (filterStatus === 'open') return bounty.isOpen;
       if (filterStatus === 'closed') return !bounty.isOpen;
       return true;
+  }).sort((a, b) => {
+      if (sortBy === 'reward') {
+          return Number(b.amount) - Number(a.amount);
+      }
+      return b.id - a.id; // Newest (by ID)
   }) || [];
 
   if (filteredBounties.length === 0) {
@@ -113,6 +122,35 @@ export const BountyList = ({ filterStatus = 'all' }: { filterStatus?: 'all' | 'o
 
   return (
     <div className="space-y-4">
+      {/* Sorting Header */}
+      <div className="flex justify-end mb-4 relative">
+        <button 
+            onClick={() => setIsSortOpen(!isSortOpen)}
+            className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-400 hover:text-white transition-colors"
+        >
+            <Filter size={12} />
+            Sort: <span className="text-emerald-400">{sortBy === 'newest' ? 'Newest' : 'Reward'}</span>
+            <ChevronDown size={12} />
+        </button>
+        
+        {isSortOpen && (
+            <div className="absolute top-8 right-0 bg-[#0A0A0A] border border-zinc-800 rounded-sm p-1 z-10 min-w-[120px] shadow-xl">
+                <button 
+                    onClick={() => { setSortBy('newest'); setIsSortOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-mono uppercase tracking-widest hover:bg-zinc-900 transition-colors ${sortBy === 'newest' ? 'text-emerald-400' : 'text-gray-400'}`}
+                >
+                    Newest
+                </button>
+                <button 
+                    onClick={() => { setSortBy('reward'); setIsSortOpen(false); }}
+                    className={`w-full text-left px-3 py-2 text-[10px] font-mono uppercase tracking-widest hover:bg-zinc-900 transition-colors ${sortBy === 'reward' ? 'text-emerald-400' : 'text-gray-400'}`}
+                >
+                    Highest Reward
+                </button>
+            </div>
+        )}
+      </div>
+
       {filteredBounties.map((bounty) => {
         const id = bounty.id;
         

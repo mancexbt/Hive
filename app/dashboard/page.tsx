@@ -8,7 +8,7 @@ import { Loader2, Shield, AlertTriangle, CheckCircle, XCircle, FileText, Chevron
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 
 // TODO: Replace with deployed contract address
 const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`; 
@@ -37,7 +37,7 @@ interface Submission {
 }
 
 export default function DashboardPage() {
-    const { authenticated, login, user } = usePrivy();
+    const { authenticated, login, user } = useAuth();
     const { writeContract, data: hash, isPending } = useWriteContract();
     const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
     const publicClient = usePublicClient({ chainId: 84532 });

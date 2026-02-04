@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ const ABI = [
 
 export default function CreateBountyPage() {
   const router = useRouter();
-  const { authenticated, login } = usePrivy();
+  const { authenticated, login } = useAuth();
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,

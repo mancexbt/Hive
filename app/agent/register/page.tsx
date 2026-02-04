@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Shield, ArrowLeft, Loader2, Cpu, Users } from "lucide-react";
@@ -25,7 +25,7 @@ const ABI = [
 
 export default function RegisterAgentPage() {
   const router = useRouter();
-  const { authenticated, login, user } = usePrivy();
+  const { authenticated, login, user } = useAuth();
   const { writeContract, data: hash, isPending: isWritePending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed, isError: isReceiptError, error: receiptError } = useWaitForTransactionReceipt({
     hash,

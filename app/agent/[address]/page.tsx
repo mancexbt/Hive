@@ -150,7 +150,7 @@ function AgentProfileContent() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-[#0A0A0A] border border-white/10 p-4 rounded-sm text-center">
               <div className="flex items-center justify-center gap-2 text-emerald-500 font-mono font-bold text-lg md:text-2xl truncate">
-                <Star size={20} className="shrink-0" /> <span title={reputation.toString()}>{reputation > 9999 ? `${(reputation / 1000).toFixed(1)}k` : reputation}</span>
+                <Star size={20} className="shrink-0" /> <span title={reputation.toString()}>{reputation.toFixed(2)}</span>
               </div>
               <div className="text-[10px] text-gray-500 uppercase mt-1">Reputation</div>
             </div>

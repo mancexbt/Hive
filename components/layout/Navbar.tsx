@@ -5,13 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X, Shield, Terminal, Book, Activity, Trophy, Rss, LogOut } from "lucide-react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 import { useReadContract } from "wagmi";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const pathname = usePathname();
-  const { user, login, logout, ready, authenticated } = usePrivy();
+  const { user, login, logout, ready, authenticated } = useAuth();
 
   // Tactical Time (for effect)
   const [time, setTime] = useState("");
@@ -94,65 +94,69 @@ export const Navbar = () => {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-          {authenticated ? (
-            <div className="flex items-center gap-6">
-              {/* Navigation Links */}
-              <Link href="/bounties" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
-                Bounties
-              </Link>
+          
+          {/* Public Links (Always Visible) */}
+          <Link href="/bounties" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
+            Bounties
+          </Link>
+          <Link href="/leaderboard" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
+            Leaderboard
+          </Link>
+          <Link href="/feed" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
+            Feed
+          </Link>
+          <Link href="/docs" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
+            Docs
+          </Link>
+
+          {/* Protected Links (Auth Only) */}
+          {authenticated && (
+            <>
               <Link href="/create" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
                 Deploy
               </Link>
               <Link href="/dashboard" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
                 Dashboard
               </Link>
-              <Link href="/feed" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
-                Feed
-              </Link>
-              <Link href="/leaderboard" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
-                Leaderboard
-              </Link>
-              <Link href="/docs" className="text-xs font-mono font-bold text-gray-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">
-                Docs
-              </Link>
-              {isOwner && (
-                <Link href="/admin" className="text-xs font-mono font-bold text-emerald-500 hover:text-white transition-colors uppercase tracking-wider border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 rounded-sm">
-                  Admin
-                </Link>
-              )}
+            </>
+          )}
 
-              {/* User Dropdown */}
-              <div className="flex items-center gap-3 group cursor-pointer" onClick={() => logout()}>
-                <div className="text-right hidden lg:block">
-                  <div className="text-xs font-bold text-white font-mono tracking-wider">
-                    {displayAddress}
-                  </div>
-                  <div className="text-[9px] text-gray-500 font-mono uppercase tracking-widest group-hover:text-emerald-500 transition-colors">
-                    AGENT
-                  </div>
+          {/* Admin Link */}
+          {isOwner && (
+            <Link href="/admin" className="text-xs font-mono font-bold text-emerald-500 hover:text-white transition-colors uppercase tracking-wider border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 rounded-sm">
+              Admin
+            </Link>
+          )}
+
+          {/* Auth Action */}
+          {authenticated ? (
+            <div className="flex items-center gap-3 group cursor-pointer" onClick={() => logout()}>
+              <div className="text-right hidden lg:block">
+                <div className="text-xs font-bold text-white font-mono tracking-wider">
+                  {displayAddress}
                 </div>
-                
-                <div className="w-9 h-9 bg-[#1A1A1A] border border-white/20 group-hover:border-emerald-500 flex items-center justify-center text-white transition-colors relative">
-                  <span className="font-mono font-bold text-xs">{user?.wallet?.address?.[2] || "A"}</span>
-                  <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-emerald-500 border border-black"></div>
+                <div className="text-[9px] text-gray-500 font-mono uppercase tracking-widest group-hover:text-emerald-500 transition-colors">
+                  AGENT
                 </div>
+              </div>
+              
+              <div className="w-9 h-9 bg-[#1A1A1A] border border-white/20 group-hover:border-emerald-500 flex items-center justify-center text-white transition-colors relative">
+                <span className="font-mono font-bold text-xs">{user?.wallet?.address?.[2] || "A"}</span>
+                <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-emerald-500 border border-black"></div>
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-6">
-              <Link href="/docs" className="flex items-center gap-2 text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-widest transition-colors">
-                Docs <Book size={10} />
-              </Link>
               <a href="https://shield.luxenlabs.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-widest transition-colors">
                 Luxen Shield <Shield size={10} />
               </a>
               <button 
-                disabled={!ready && !authTimeout}
+                disabled={!ready}
                 onClick={() => login()} 
-                className={`px-5 py-2 bg-white text-black font-bold font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${!ready && !authTimeout ? "opacity-50 cursor-not-allowed" : "hover:bg-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.6)]"}`}
+                className={`px-5 py-2 bg-white text-black font-bold font-mono text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${!ready ? "opacity-50 cursor-not-allowed" : "hover:bg-emerald-400 hover:shadow-[0_0_15px_rgba(16,185,129,0.6)]"}`}
               >
                 <Terminal size={12} /> 
-                {authTimeout && !ready ? "Retry Connection" : !ready ? "Loading..." : "Connect Wallet"}
+                {!ready ? "Loading..." : "Connect Wallet"}
               </button>
             </div>
           )}
@@ -198,10 +202,10 @@ export const Navbar = () => {
               <div className="space-y-1">
                 <MobileNavLink href="/" icon={Shield} label="Marketplace" />
                 <MobileNavLink href="/bounties" icon={Terminal} label="Active Bounties" />
+                <MobileNavLink href="/leaderboard" icon={Trophy} label="Leaderboard" />
                 <MobileNavLink href="/create" icon={Shield} label="Deploy Bounty" />
                 <MobileNavLink href="/dashboard" icon={Activity} label="Validator Dashboard" />
                 <MobileNavLink href="/feed" icon={Rss} label="Live Feed" />
-                <MobileNavLink href="/leaderboard" icon={Trophy} label="Leaderboard" />
                 <MobileNavLink href="/docs" icon={Book} label="Documentation" />
               </div>
 
@@ -217,6 +221,14 @@ export const Navbar = () => {
             </div>
           ) : (
             <div className="p-6 flex flex-col gap-4">
+              <Link href="/bounties" className="flex items-center justify-between text-gray-400 hover:text-white p-3 border border-white/5 hover:border-white/20 rounded-sm transition-all">
+                <span className="font-mono text-xs uppercase">All Bounties</span> 
+                <Terminal size={14} />
+              </Link>
+              <Link href="/leaderboard" className="flex items-center justify-between text-gray-400 hover:text-white p-3 border border-white/5 hover:border-white/20 rounded-sm transition-all">
+                <span className="font-mono text-xs uppercase">Leaderboard</span> 
+                <Trophy size={14} />
+              </Link>
               <Link href="/docs" className="flex items-center justify-between text-gray-400 hover:text-white p-3 border border-white/5 hover:border-white/20 rounded-sm transition-all">
                 <span className="font-mono text-xs uppercase">Documentation</span> 
                 <Book size={14} />

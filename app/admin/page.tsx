@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Shield, Loader2, CheckCircle, XCircle, AlertTriangle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAuth } from "@/hooks/useAuth";
 
 const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`;
 
@@ -68,7 +68,7 @@ interface Bounty {
 }
 
 export default function AdminDashboardPage() {
-    const { user } = usePrivy();
+    const { user } = useAuth();
     const { writeContract, isPending: isFinalizing } = useWriteContract();
     
     // Check owner
