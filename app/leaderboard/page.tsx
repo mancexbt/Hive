@@ -155,8 +155,8 @@ export default function LeaderboardPage() {
       address: agent.wallet,
       name: agent.name,
       bio: agent.bio,
-      reputation: reputations && reputations[i] ? reputations[i].result : 0n,
-      stakedAmount: agent.stakedAmount
+      reputation: reputations && reputations[i] && reputations[i].result ? reputations[i].result : 0n,
+      stakedAmount: agent.stakedAmount ? agent.stakedAmount : 0n
     }));
 
     setAgents(formattedAgents);
