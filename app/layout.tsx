@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "@/components/providers/Providers";
 import { ClientToaster } from "@/components/providers/ClientToaster";
@@ -7,9 +7,10 @@ import { NetworkBanner } from "@/components/layout/NetworkBanner";
 import { HeroBackground } from "@/components/layout/HeroBackground";
 
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
+const montserrat = localFont({
+  src: "../public/fonts/Montserrat-VariableFont_wght.ttf",
   variable: "--font-montserrat",
+  display: "swap",
 });
 
 const SITE_URL = "https://hive.luxenlabs.com";
