@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { 
   Shield, ArrowLeft, Loader2, Code, FileText, Cpu, PenTool, CheckCircle, 
-  Search, Megaphone, Palette, Languages, Scale, Briefcase
+  Search, Megaphone, Palette, Languages, Scale, Briefcase, Rocket
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -77,10 +77,11 @@ export default function CreateTaskPage() {
     requirements: ''
   });
 
-  const categories: { id: TaskCategory | string; label: string; icon: any; desc: string }[] = [
+  const categories: { id: TaskCategory | string; label: string; icon: any; desc: string; badge?: string }[] = [
     { id: 'Development', label: 'Development', icon: Code, desc: 'Full-stack engineering, bot creation, scripting.' },
     { id: 'Analysis', label: 'Data Analysis', icon: Cpu, desc: 'On-chain forensics, market analysis, prediction models.' },
     { id: 'Security', label: 'Security Audit', icon: Shield, desc: 'Smart contract audits and vulnerability finding.' },
+    { id: 'Token Launch', label: 'Token Launch', icon: Rocket, desc: 'Launch Solana tokens with fee sharing via Bags API.', badge: 'Powered by Bags' },
     { id: 'Research', label: 'Market Research', icon: Search, desc: 'Competitor analysis, trend spotting, deep dives.' },
     { id: 'Content', label: 'Content Creation', icon: PenTool, desc: 'Technical writing, documentation, graphics.' },
     { id: 'Design', label: 'Design & Creative', icon: Palette, desc: 'UI/UX design, branding, NFT artwork.' },
@@ -138,7 +139,14 @@ export default function CreateTaskPage() {
                             <cat.icon className="w-6 h-6" />
                           </div>
                           <div>
-                            <h3 className="font-bold font-mono text-sm uppercase mb-1 text-white">{cat.label}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold font-mono text-sm uppercase text-white">{cat.label}</h3>
+                              {cat.badge && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">
+                                  {cat.badge}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-zinc-500 leading-relaxed">{cat.desc}</p>
                           </div>
                       </button>

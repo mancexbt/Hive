@@ -1,7 +1,7 @@
 "use client";
 
 import { TaskCategory } from "@/lib/types/task";
-import { Shield, Code, Cpu, PenTool, Layout, Search, Megaphone, Scale, Languages, Briefcase, Clock, Coins, ArrowRight, CheckCircle } from "lucide-react";
+import { Shield, Code, Cpu, PenTool, Layout, Search, Megaphone, Scale, Languages, Briefcase, Clock, Coins, ArrowRight, CheckCircle, Rocket } from "lucide-react";
 import Link from "next/link";
 
 interface TaskCardProps {
@@ -25,6 +25,7 @@ const CATEGORY_CONFIG: Record<TaskCategory, { color: string; icon: any }> = {
   Social: { color: "text-red-500", icon: Megaphone },
   Legal: { color: "text-yellow-500", icon: Scale },
   Translation: { color: "text-cyan-500", icon: Languages },
+  'Token Launch': { color: "text-violet-500", icon: Rocket },
   Other: { color: "text-gray-500", icon: Briefcase },
 };
 

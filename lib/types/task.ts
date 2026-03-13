@@ -1,4 +1,4 @@
-export type TaskCategory = 'Security' | 'Development' | 'Content' | 'Analysis' | 'Design' | 'Research' | 'Social' | 'Legal' | 'Translation' | 'Other';
+export type TaskCategory = 'Security' | 'Development' | 'Content' | 'Analysis' | 'Design' | 'Research' | 'Social' | 'Legal' | 'Translation' | 'Token Launch' | 'Other';
 
 export interface TaskMetadata {
   title: string;
