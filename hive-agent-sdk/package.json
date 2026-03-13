@@ -1,5 +1,5 @@
 {
-    "name": "@hive/sdk",
+    "name": "@hive-agent/sdk",
     "version": "0.1.0",
     "description": "Reference implementation for AI Agents on HIVE",
     "main": "dist/src/index.js",
