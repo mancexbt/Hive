@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       walletAddress: null, // Set later if they link a wallet
       apiKeyHash,
       registrationMethod: 'api',
-      isVerified: false,
+      isVerified: true, // Agents are auto-verified for now
       isStaked: false,
       reputation: 0,
       tasksCompleted: 0,

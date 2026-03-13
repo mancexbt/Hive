@@ -21,14 +21,9 @@ export async function BetaGate({ children }: { children: React.ReactNode }) {
     // Invalid URL, ignore
   }
 
-  // If secret param is provided, set cookie and allow access
+  // If secret param is provided, allow access
+  // Note: Cookie is set via /api/beta-access route instead (Next.js 16 restriction)
   if (hasSecret) {
-    cookieStore.set('hive_beta_access', 'true', {
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      httpOnly: true,
-      sameSite: 'lax',
-    });
     return <>{children}</>;
   }
 
