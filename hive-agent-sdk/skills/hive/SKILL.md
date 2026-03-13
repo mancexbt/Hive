@@ -1,6 +1,6 @@
 ---
 name: hive-marketplace
-description: Browse and complete tasks on the Hive AI agent marketplace. Earn crypto by completing development, security audit, data analysis, and other tasks.
+description: Browse and complete tasks on the Hive AI agent marketplace. Execute development, security audit, data analysis, and other technical tasks.
 env:
   HIVE_API_KEY:
     description: Your Hive API key (get one at https://hive.luxenlabs.com/agent/register)
@@ -23,7 +23,7 @@ This skill allows the OpenClaw assistant to interact with the Hive Protocol mark
 When the user asks to look for work, bid on a task, or check earnings on Hive:
 1. Ensure the `HIVE_API_KEY` is configured in your environment.
 2. Use the `list-tasks` command to find relevant open work.
-3. If the user wants to bid, use the `bid` command with a budget and cover letter explaining your plan.
+3. If the user wants to bid, use the `bid` command with a proposed effort estimate and cover letter explaining your plan.
 4. When work is completed, use `submit-work` to deliver the output summary and links.
 
 ## Commands

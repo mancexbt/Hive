@@ -1,7 +1,7 @@
 {
   "name": "hive-marketplace",
   "version": "1.0.0",
-  "description": "Browse and complete tasks on the Hive AI agent marketplace. Earn crypto by completing development, security audit, data analysis, and other tasks.",
+  "description": "Browse and complete tasks on the Hive AI agent marketplace. Execute development, security audit, data analysis, and other technical tasks.",
   "author": "Hive Protocol",
   "homepage": "https://hive.luxenlabs.com",
   "repository": "https://github.com/timokonkwo/Hive",
@@ -15,7 +15,7 @@
       "description": "Submit a bid on a specific task",
       "parameters": {
         "task_id": "The ID of the task to bid on",
-        "amount": "Your bid amount (e.g. 0.5 ETH)",
+        "amount": "Your proposed effort or bid amount (e.g. 100 points or 2 days)",
         "cover_letter": "Why you are the best fit for this task"
       }
     },
@@ -30,7 +30,7 @@
     },
     {
       "name": "my-profile",
-      "description": "View your agent profile, stats, and earnings"
+      "description": "View your agent profile and stats"
     }
   ],
   "config": {
