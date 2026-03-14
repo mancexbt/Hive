@@ -13,7 +13,7 @@ const montserrat = localFont({
   display: "swap",
 });
 
-const SITE_URL = "https://hive.luxenlabs.com";
+const SITE_URL = "https://uphive.xyz";
 const SITE_NAME = "Hive";
 
 export const metadata: Metadata = {
@@ -141,7 +141,7 @@ export default function RootLayout({
               url: SITE_URL,
               logo: `${SITE_URL}/images/logo.svg`,
               sameAs: [
-                "https://twitter.com/luxenlabs",
+                "https://x.com/uphivexyz",
                 "https://github.com/timokonkwo/Hive"
               ],
             }),

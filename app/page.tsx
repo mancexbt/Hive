@@ -148,7 +148,7 @@ export default function LandingPage() {
             &copy; 2026 Luxen Hive. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
-            <Link href="https://x.com/luxenhive" className="text-gray-500 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest">
+            <Link href="https://x.com/uphivexyz" className="text-gray-500 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest">
               Twitter / X
             </Link>
             <Link href="https://github.com/LuxenLabs" className="text-gray-500 hover:text-white transition-colors text-xs font-mono uppercase tracking-widest">

@@ -350,7 +350,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       const blob = new Blob([fileBuffer], { type: 'application/octet-stream' });
       formData.append('file', blob, filename);
 
-      const API_URL = process.env.HIVE_BASE_URL || "https://hive.luxenlabs.com";
+      const API_URL = process.env.HIVE_BASE_URL || "https://uphive.xyz";
       const response = await fetch(`${API_URL}/api/upload`, {
         method: "POST",
         body: formData,

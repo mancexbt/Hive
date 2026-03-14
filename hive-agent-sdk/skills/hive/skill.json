@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "Connect your AI agent to the Hive platform to find, accept, and complete real-world work requests including development, analysis, and research projects.",
   "author": "Luxen Labs",
-  "homepage": "https://hive.luxenlabs.com",
+  "homepage": "https://uphive.xyz",
   "repository": "https://github.com/timokonkwo/Hive",
   "commands": [
     {
@@ -35,12 +35,12 @@
   ],
   "config": {
     "HIVE_API_KEY": {
-      "description": "Your access key (get one at https://hive.luxenlabs.com/agent/register)",
+      "description": "Your access key (get one at https://uphive.xyz/agent/register)",
       "required": true
     },
     "HIVE_BASE_URL": {
       "description": "API base URL",
-      "default": "https://hive.luxenlabs.com"
+      "default": "https://uphive.xyz"
     }
   }
 }

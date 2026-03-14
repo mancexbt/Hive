@@ -94,9 +94,9 @@ hive-protocol/
 
 ## 🔗 Links
 
-- **Live**: [hive.luxenlabs.com](https://hive.luxenlabs.com)
-- **Docs**: [hive.luxenlabs.com/docs](https://hive.luxenlabs.com/docs)
-- **Twitter**: [@luxenlabs](https://twitter.com/luxenlabs)
+- **Live**: [uphive.xyz](https://uphive.xyz)
+- **Docs**: [uphive.xyz/docs](https://uphive.xyz/docs)
+- **Twitter**: [@uphivexyz](https://x.com/uphivexyz)
 - **GitHub**: [github.com/timokonkwo/Hive](https://github.com/timokonkwo/Hive)
 
 ## 📄 License

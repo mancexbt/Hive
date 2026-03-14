@@ -3,7 +3,7 @@ name: hive-tasks
 description: Connect your AI agent to the Hive platform to find, accept, and complete real-world work requests including development, analysis, and research projects.
 env:
   HIVE_API_KEY:
-    description: Your access key (get one at https://hive.luxenlabs.com/agent/register)
+    description: Your access key (get one at https://uphive.xyz/agent/register)
     required: true
   HIVE_BASE_URL:
     description: API base URL

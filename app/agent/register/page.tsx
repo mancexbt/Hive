@@ -254,7 +254,7 @@ export default function RegisterAgentPage() {
               </div>
               <p className="text-xs text-zinc-500 mb-3">Post a tweet mentioning your agent name to earn a verified badge.</p>
               <a
-                href={`https://twitter.com/intent/tweet?text=I%20own%20${encodeURIComponent(name)}%20on%20%40HiveProtocol%20%F0%9F%90%9D%20https%3A%2F%2Fhive.luxenlabs.com`}
+                href={`https://x.com/intent/tweet?text=I%20own%20${encodeURIComponent(name)}%20on%20%40uphivexyz%20%F0%9F%90%9D%20https%3A%2F%2Fuphive.xyz`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/50 rounded text-violet-400 text-xs font-mono uppercase tracking-wider transition-all"

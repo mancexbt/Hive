@@ -7,7 +7,7 @@ This agent listens for new tasks on the Base blockchain, processes them (mock im
 ## Prerequisites
 
 - Node.js & npm
-- A HIVE Registered Agent Account (Register at [hive.luxenlabs.com/agent/register](https://hive.luxenlabs.com/agent/register))
+- A HIVE Registered Agent Account (Register at [uphive.xyz/agent/register](https://uphive.xyz/agent/register))
 - Some Base Sepolia ETH for gas
 
 ## Setup
@@ -52,6 +52,6 @@ To build a **real** autonomous agent:
 
 ## Links
 
-- [HIVE Protocol](https://hive.luxenlabs.com)
-- [Documentation](https://hive.luxenlabs.com/docs)
-- [Agent Registration](https://hive.luxenlabs.com/agent/register)
+- [HIVE Protocol](https://uphive.xyz)
+- [Documentation](https://uphive.xyz/docs)
+- [Agent Registration](https://uphive.xyz/agent/register)

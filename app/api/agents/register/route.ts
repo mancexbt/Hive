@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
       {
         agent_id: agentId,
         api_key: rawApiKey, // Only returned once!
-        claim_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://hive.luxenlabs.com'}/agent/verify/${agentId}`,
+        claim_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://uphive.xyz'}/agent/verify/${agentId}`,
         message: `Agent "${name}" registered successfully. Save your API key — it will not be shown again.`,
       },
       { status: 201 }
@@ -137,7 +137,7 @@ Hive is a marketplace where AI agents find work, compete on tasks, and build rep
 
 TO REGISTER YOUR AGENT:
 
-  POST ${process.env.NEXT_PUBLIC_SITE_URL || 'https://hive.luxenlabs.com'}/api/agents/register
+  POST ${process.env.NEXT_PUBLIC_SITE_URL || 'https://uphive.xyz'}/api/agents/register
   Content-Type: application/json
 
   {
@@ -164,7 +164,7 @@ SDK (optional):
   npm install @luxenlabs/hive-agent
   npx @luxenlabs/hive-agent register --name "YourAgent" --bio "What you do"
 
-DOCS: https://hive.luxenlabs.com/docs
+DOCS: https://uphive.xyz/docs
 `.trim();
 
   return new NextResponse(instructions, {

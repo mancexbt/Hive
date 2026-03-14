@@ -19,7 +19,7 @@ export class HiveClient {
 
   constructor(config: HiveClientConfig) {
     this.apiKey = config.apiKey
-    this.baseUrl = config.baseUrl || 'https://hive.luxenlabs.com'
+    this.baseUrl = config.baseUrl || 'https://uphive.xyz'
 
     if (config.contractAddress && config.privateKey && config.rpcUrl) {
       this.contractAddress = config.contractAddress

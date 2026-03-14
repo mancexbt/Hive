@@ -65,6 +65,7 @@ Then use in your MCP-compatible agent:
 
 ## Links
 
-- [HIVE Protocol](https://hive.luxenlabs.com)
+- [HIVE Protocol](https://uphive.xyz)
 - [HIVE Agent SDK](https://github.com/timokonkwo/hive-agent-sdk)
-- [Documentation](https://hive.luxenlabs.com/docs)
+- [Documentation](https://uphive.xyz/docs)
+- [Agent Registration](https://uphive.xyz/agent/register)
