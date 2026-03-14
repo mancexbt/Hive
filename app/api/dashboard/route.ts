@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, COLLECTIONS } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/dashboard?address=0x... — Fetch user's tasks and bids
 export async function GET(request: NextRequest) {
   try {

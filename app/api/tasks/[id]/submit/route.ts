@@ -118,3 +118,31 @@ export async function POST(
     );
   }
 }
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const db = await getDb();
+    const { id: taskId } = await params;
+
+    const submission = await db.collection('submissions').findOne(
+      { taskId },
+      { sort: { createdAt: -1 } }
+    );
+
+    if (!submission) {
+      return NextResponse.json({ error: 'No submission found.' }, { status: 404 });
+    }
+
+    return NextResponse.json({ submission }, { status: 200 });
+  } catch (error: any) {
+    console.error('[HIVE] Error fetching submission:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to fetch submission' },
+      { status: 500 }
+    );
+  }
+}
+

@@ -4,7 +4,7 @@ import { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, Clock, Coins, CheckCircle, X, Loader2, ChevronDown, ChevronUp, UserCheck, XCircle } from "lucide-react";
+import { ArrowLeft, Clock, Coins, CheckCircle, X, Loader2, ChevronDown, ChevronUp, UserCheck, XCircle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -23,6 +23,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [expandedBid, setExpandedBid] = useState<string | null>(null);
   const [processingBid, setProcessingBid] = useState<string | null>(null);
+  const [submission, setSubmission] = useState<any>(null);
 
   const userAddress = user?.wallet?.address?.toLowerCase();
   const isTaskPoster = task?.clientAddress?.toLowerCase() === userAddress;
@@ -33,9 +34,10 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
       console.log(`[TaskDetails] Fetching data for taskId:`, taskId);
       setLoading(true);
       try {
-        const [taskRes, bidsRes] = await Promise.all([
+        const [taskRes, bidsRes, submissionRes] = await Promise.all([
           fetch(`/api/tasks/${taskId}`),
           fetch(`/api/tasks/${taskId}/bids`),
+          fetch(`/api/tasks/${taskId}/submit`),
         ]);
         console.log(`[TaskDetails] Statuses - Task: ${taskRes.status}, Bids: ${bidsRes.status}`);
         
@@ -52,6 +54,11 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
         if (bidsRes.ok) {
           const data = await bidsRes.json();
           setBids(data.bids || []);
+        }
+
+        if (submissionRes.ok) {
+          const subData = await submissionRes.json();
+          setSubmission(subData.submission || null);
         }
       } catch (err) {
         console.error("[TaskDetails] Failed to fetch task completely:", err);
@@ -271,6 +278,58 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                         ))}
                      </div>
                 </div>
+                )}
+
+                {/* Work Submission View */}
+                {submission && (
+                    <div className="mt-12 p-8 border border-emerald-500/30 bg-emerald-500/5 rounded-xl">
+                        <h3 className="text-xl font-bold font-mono uppercase text-emerald-400 mb-6 flex items-center gap-3">
+                            <CheckCircle className="w-6 h-6" /> Work Submitted
+                        </h3>
+
+                        <div className="space-y-6">
+                            <div>
+                                <h4 className="text-xs font-mono uppercase tracking-widest text-emerald-500/70 mb-2">Summary of Work</h4>
+                                <p className="text-zinc-300 leading-relaxed font-light">{submission.summary}</p>
+                            </div>
+
+                            <div>
+                                <h4 className="text-xs font-mono uppercase tracking-widest text-emerald-500/70 mb-2">Deliverables</h4>
+                                <div className="p-4 bg-black/40 border border-emerald-500/20 rounded-lg">
+                                    <a 
+                                        href={submission.deliverables} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="text-emerald-400 hover:text-emerald-300 flex items-center gap-2 break-all"
+                                    >
+                                        <ExternalLink className="w-4 h-4 shrink-0" />
+                                        {submission.deliverables}
+                                    </a>
+                                </div>
+                            </div>
+
+                            {submission.reportUri && (
+                                <div>
+                                    <h4 className="text-xs font-mono uppercase tracking-widest text-emerald-500/70 mb-2">Report Link</h4>
+                                    <div className="p-4 bg-black/40 border border-emerald-500/20 rounded-lg">
+                                        <a 
+                                            href={submission.reportUri} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="text-emerald-400 hover:text-emerald-300 flex items-center gap-2 break-all"
+                                        >
+                                            <ExternalLink className="w-4 h-4 shrink-0" />
+                                            {submission.reportUri}
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="pt-4 border-t border-emerald-500/20 text-xs text-zinc-500 font-mono">
+                                Submitted on {new Date(submission.createdAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {/* Proposals List */}

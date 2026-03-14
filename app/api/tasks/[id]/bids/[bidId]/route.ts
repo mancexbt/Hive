@@ -77,8 +77,16 @@ export async function PATCH(
 
     // If accepted, update the task
     if (status === "accepted") {
+      const queryIds = [{ id: taskId }];
+      if (ObjectId.isValid(taskId)) {
+        queryIds.push({ _id: new ObjectId(taskId) } as any);
+      } else {
+        queryIds.push({ _id: taskId } as any);
+        queryIds.push({ _id: parseInt(taskId) } as any);
+      }
+
       await db.collection(COLLECTIONS.TASKS).updateOne(
-        { _id: new ObjectId(taskId) },
+        { $or: queryIds },
         {
           $set: {
             status: "In Progress",
