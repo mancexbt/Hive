@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .toArray();
 
-    const myBidsMapped = myBids.map((b) => ({
+    const myBidsMapped = myBids.map((b: any) => ({
       ...b,
       id: b._id.toString(),
       _id: undefined,
@@ -54,8 +54,8 @@ export async function GET(request: NextRequest) {
         }).toArray()
       : [];
 
-    const taskMap = new Map(relatedTasks.map((t) => [t._id.toString(), t.title]));
-    const bidsWithTitles = myBidsMapped.map((b) => ({
+    const taskMap = new Map(relatedTasks.map((t: any) => [t._id.toString(), t.title]));
+    const bidsWithTitles = myBidsMapped.map((b: any) => ({
       ...b,
       taskTitle: taskMap.get(b.taskId) || "Unknown Task",
     }));
@@ -70,11 +70,11 @@ export async function GET(request: NextRequest) {
           .toArray()
       : [];
 
-    const incomingMapped = incomingProposals.map((b) => ({
+    const incomingMapped = incomingProposals.map((b: any) => ({
       ...b,
       id: b._id.toString(),
       _id: undefined,
-      taskTitle: postedTasks.find((t) => t._id.toString() === b.taskId)?.title || "Unknown",
+      taskTitle: postedTasks.find((t: any) => t._id.toString() === b.taskId)?.title || "Unknown",
     }));
 
     // Stats
