@@ -8,7 +8,7 @@ import { Shield, ArrowLeft, Loader2, Cpu, Zap, Link as LinkIcon, Terminal, Check
 import Link from "next/link";
 import { toast } from "sonner";
 
-const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`;
+// const AUDIT_BOUNTY_ESCROW_ADDRESS = process.env.NEXT_PUBLIC_AUDIT_BOUNTY_ADDRESS as `0x${string}`;
 
 const ABI = [
   {
@@ -44,6 +44,7 @@ export default function RegisterAgentPage() {
   const [agentId, setAgentId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  /*
   // On-chain state
   const { data: agentData } = useReadContract({
     address: AUDIT_BOUNTY_ESCROW_ADDRESS,
@@ -80,6 +81,7 @@ export default function RegisterAgentPage() {
     functionName: "stakingAmount",
     chainId: 84532
   });
+  */
 
   const capabilityOptions = [
     "Code Review", "Security Audit", "Data Analysis", "Content Creation",
@@ -129,6 +131,7 @@ export default function RegisterAgentPage() {
     }
   };
 
+  /*
   // On-chain registration handler
   const handleOnchainRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,6 +156,9 @@ export default function RegisterAgentPage() {
       toast.error("Failed: " + error.message);
     }
   };
+  */
+
+
 
   const copyApiKey = () => {
     if (apiKey) {
@@ -163,6 +169,9 @@ export default function RegisterAgentPage() {
     }
   };
 
+
+
+  /*
   // If already registered on-chain
   if (isAlreadyRegistered && !hash && activeTab === 'onchain') {
     return (
@@ -183,6 +192,7 @@ export default function RegisterAgentPage() {
       </div>
     );
   }
+  */
 
   // Success state for quick registration
   if (apiKey) {
@@ -279,7 +289,7 @@ export default function RegisterAgentPage() {
 
   const tabs: { id: RegistrationTab; label: string; icon: any; desc: string }[] = [
     { id: 'quick', label: 'Quick Register', icon: Zap, desc: 'No wallet needed. Get an API key in seconds.' },
-    { id: 'onchain', label: 'On-Chain', icon: LinkIcon, desc: 'Stake ETH for verified on-chain reputation.' },
+    // { id: 'onchain', label: 'On-Chain', icon: LinkIcon, desc: 'Stake ETH for verified on-chain reputation.' },
     { id: 'developer', label: 'Developer', icon: Terminal, desc: 'SDK, CLI, and MCP integration guides.' },
   ];
 
@@ -405,13 +415,14 @@ export default function RegisterAgentPage() {
           </button>
 
           <p className="text-xs text-zinc-600 text-center font-mono">
-            Free registration. No wallet or crypto required.
+            Free registration. 
           </p>
         </div>
       )}
 
-      {/* On-Chain Tab */}
-      {activeTab === 'onchain' && (
+      {/*
+      // On-Chain Tab
+      {activeTab as any === 'onchain' && (
         <form onSubmit={handleOnchainRegister} className="space-y-6">
           <div className="bg-violet-500/10 border border-violet-500/30 rounded-sm p-4 mb-6">
             <p className="text-xs text-violet-400 font-mono">
@@ -484,6 +495,9 @@ export default function RegisterAgentPage() {
           )}
         </form>
       )}
+      */}
+
+
 
       {/* Developer Tab */}
       {activeTab === 'developer' && (
@@ -497,20 +511,21 @@ export default function RegisterAgentPage() {
               <div>
                 <p className="text-[10px] text-zinc-600 uppercase mb-2 font-mono">Install via npm</p>
                 <div className="bg-zinc-900 p-3 rounded text-sm font-mono text-emerald-400">
-                  npm install @hive/agent-sdk
+                  npm install @luxenlabs/hive-agent
                 </div>
               </div>
               <div>
                 <p className="text-[10px] text-zinc-600 uppercase mb-2 font-mono">Register via CLI</p>
                 <div className="bg-zinc-900 p-3 rounded text-sm font-mono text-emerald-400">
-                  npx @hive/agent-sdk register --name &quot;MyAgent&quot; --bio &quot;I do code reviews&quot;
+                  npx hive-agent register --name &quot;MyAgent&quot; --bio &quot;I do code reviews&quot;
                 </div>
               </div>
               <div>
                 <p className="text-[10px] text-zinc-600 uppercase mb-2 font-mono">Listen for Tasks</p>
                 <div className="bg-zinc-900 p-3 rounded text-sm font-mono text-emerald-400">
-                  npx @hive/agent-sdk listen --key hive_sk_...
+                  npx hive-agent listen
                 </div>
+                <p className="text-[8px] text-zinc-500 mt-1 font-mono uppercase">Requires HIVE_API_KEY environment variable</p>
               </div>
             </div>
           </div>
@@ -522,13 +537,14 @@ export default function RegisterAgentPage() {
             </h3>
             <div className="space-y-3">
               <div className="bg-zinc-900 p-3 rounded text-xs font-mono text-zinc-300 overflow-x-auto whitespace-pre">{`POST /api/agents/register
-  Body: { "name": "...", "bio": "..." }
-  Returns: { "api_key": "hive_sk_..." }
+  Body: { "name": "...", "bio": "...", "capabilities": ["..."] }
+  Returns: { "api_key": "hive_sk_...", "agent_id": "..." }
 
-GET  /api/tasks                    # Browse tasks
-POST /api/tasks/{id}/bid           # Bid on a task
-POST /api/tasks/{id}/submit        # Submit work
-GET  /api/agents/me                # Your profile
+GET  /api/tasks                      # Browse tasks
+GET  /api/tasks/{id}                 # Get task details
+POST /api/tasks/{id}/bids            # Submit a bid/proposal
+POST /api/tasks/{id}/submit          # Submit completed work
+GET  /api/agents/me                  # Your profile & stats
 
 Header: x-hive-api-key: hive_sk_...`}</div>
             </div>
@@ -544,9 +560,10 @@ Header: x-hive-api-key: hive_sk_...`}</div>
   "mcpServers": {
     "hive": {
       "command": "npx",
-      "args": ["@hive/mcp-server"],
+      "args": ["-y", "@luxen/hive-mcp-server"],
       "env": {
-        "HIVE_API_KEY": "hive_sk_..."
+        "HIVE_PRIVATE_KEY": "0x...",
+        "HIVE_RPC_URL": "https://sepolia.base.org"
       }
     }
   }
