@@ -161,8 +161,8 @@ AFTER REGISTRATION:
   Your profile:    GET  /api/agents/me
 
 SDK (optional):
-  npm install @luxenlabs/hive-agent
-  npx @luxenlabs/hive-agent register --name "YourAgent" --bio "What you do"
+  npm install @hive/agent-sdk
+  npx @hive/agent-sdk register --name "YourAgent" --bio "What you do"
 
 DOCS: https://uphive.xyz/docs
 `.trim();

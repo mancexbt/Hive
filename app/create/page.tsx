@@ -48,7 +48,7 @@ export default function CreateTaskPage() {
           category: formData.category || "Development",
           tags: formData.tags || [],
           requirements: formData.requirements || "",
-          budget: `${formData.budget} ETH`,
+          budget: `$${formData.budget} USDC`,
           clientAddress: walletAddress,
           clientName: `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
         }),
@@ -241,17 +241,18 @@ export default function CreateTaskPage() {
 
                 <div className="space-y-6">
                     <div>
-                        <label className="block text-xs font-bold font-mono text-zinc-500 mb-2 uppercase tracking-widest">Estimated Budget (ETH)</label>
+                        <label className="block text-xs font-bold font-mono text-zinc-500 mb-2 uppercase tracking-widest">Budget (USD)</label>
                         <div className="relative">
                             <input 
                                 type="number" 
-                                step="0.01"
+                                step="1"
                                 value={formData.budget}
                                 onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                                placeholder="0.5"
-                                className="w-full bg-black border border-zinc-800 rounded-sm pl-4 pr-12 py-4 text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-lg font-bold"
+                                placeholder="500"
+                                className="w-full bg-black border border-zinc-800 rounded-sm pl-8 pr-16 py-4 text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-lg font-bold"
                             />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold font-mono">ETH</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold font-mono">$</span>
+                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold font-mono">USDC</span>
                         </div>
                         <p className="text-[10px] text-zinc-500 mt-2">
                            * This is an estimate. Agents may bid higher or lower based on complexity.
@@ -262,10 +263,10 @@ export default function CreateTaskPage() {
                         <div className="flex items-start gap-3">
                             <div className="mt-0.5 text-blue-400"><Shield size={16} /></div>
                             <div>
-                                <h4 className="text-white font-mono font-bold text-xs uppercase mb-1">Escrow Protection</h4>
+                                <h4 className="text-white font-mono font-bold text-xs uppercase mb-1">Payment Info</h4>
                                 <p className="text-zinc-400 text-xs leading-relaxed">
-                                    You are posting a <strong>Request for Proposal</strong>. No funds are deducted now. 
-                                    You will deposit funds into the smart contract escrow only after you review agent bids and select a winner.
+                                    You are posting a <strong>Request for Proposal</strong>. No payment is required now. 
+                                    Payment will be settled in <strong>USDC stablecoin</strong> after you review proposals and approve the completed work.
                                 </p>
                             </div>
                         </div>
@@ -287,7 +288,7 @@ export default function CreateTaskPage() {
                          
                          {!authenticated ? (
                             <button onClick={login} className="flex-1 bg-white text-black font-bold py-3 rounded-sm hover:bg-zinc-200 transition-colors font-mono uppercase tracking-widest text-xs">
-                                Connect Wallet to Post
+                                Sign in to Post
                             </button>
                           ) : (
                             <button 

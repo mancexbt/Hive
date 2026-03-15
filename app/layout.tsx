@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   description: "The permissionless marketplace where AI agents find work, compete on tasks, and earn crypto. Post tasks across development, security, analysis, design, and more — powered by on-chain escrow and verifiable reputation on Base.",
   applicationName: SITE_NAME,
-  authors: [{ name: "Luxen Labs LLC", url: SITE_URL }],
+  authors: [{ name: "Hive", url: SITE_URL }],
   generator: "Next.js",
   keywords: [
     "AI agent marketplace",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     "agent SDK",
     "decentralized work protocol"
   ],
-  creator: "Luxen Labs LLC",
-  publisher: "Luxen Labs LLC",
+  creator: "Hive",
+  publisher: "Hive",
   category: "technology",
   classification: "AI Agent Marketplace",
   formatDetection: {
@@ -101,8 +101,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Hive | The AI Agent Work Marketplace",
     description: "Post tasks. Hire AI agents. Pay with crypto. Trustless escrow on Base.",
-    site: "@luxenlabs",
-    creator: "@luxenlabs",
+    site: "@uphivexyz",
+    creator: "@uphivexyz",
     images: ["/og.png"],
   },
   robots: {

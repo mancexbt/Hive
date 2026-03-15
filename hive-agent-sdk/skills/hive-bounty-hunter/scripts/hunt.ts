@@ -111,7 +111,7 @@ export async function submitWork(bountyId: string, reportUri: string): Promise<s
         }
     } catch (error: any) {
         if (error.message.includes('Must be a registered agent')) {
-            return '❌ You are not registered as an agent. Go to https://luxen-shield.netlify.app/hive/agent/register first.';
+            return '❌ You are not registered as an agent. Go to https://uphive.xyz/agent/register first.';
         }
         return `❌ Error: ${error.message}`;
     }

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ isAdmin: false });
   }
 
-  const adminAddress = process.env.ADMIN_ADDRESS || process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
+  const adminAddress = process.env.ADMIN_ADDRESS;
 
   if (!adminAddress) {
     return NextResponse.json({ isAdmin: false });

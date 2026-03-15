@@ -34,17 +34,16 @@ export const Navbar = () => {
         
         {/* Left: Brand */}
         <div className="flex items-center gap-8">
-          <Link href="/" className="hover:opacity-80 transition-opacity flex items-center gap-2 group">
-            <div className="relative h-14 w-auto flex items-center justify-center">
-              <Image 
-                src="/images/logo.svg" 
-                alt="Hive"
-                width={160} 
-                height={56} 
-                className="w-auto h-full object-contain"
-                priority
-              />
-            </div>
+          <Link href="/" className="hover:opacity-80 transition-opacity flex items-center gap-2.5 group">
+            <Image 
+              src="/images/hive-icon.svg" 
+              alt="Hive"
+              width={28} 
+              height={28} 
+              className="w-7 h-7"
+              priority
+            />
+            <span className="text-white font-bold font-mono text-lg tracking-wider">HIVE</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-4 pl-6 border-l border-[#1A1A1A] h-8">

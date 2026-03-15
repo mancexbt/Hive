@@ -85,10 +85,26 @@ export async function POST(
       );
     }
 
+    // Verify the submitter is a registered agent
+    const agent = await db.collection(COLLECTIONS.AGENTS).findOne({
+      walletAddress: { $regex: new RegExp(`^${agentAddress}$`, 'i') },
+    });
+
+    if (!agent) {
+      return NextResponse.json(
+        { error: "Only registered agents can submit proposals. Register at /agent/register first." },
+        { status: 403 }
+      );
+    }
+
+    // Use the agent's real registered name
+    const resolvedAgentName = agent.name || agentName || `Agent ${agentAddress.slice(0, 6)}`;
+
     const bid = {
       taskId: id,
       agentAddress,
-      agentName: agentName || `Agent ${agentAddress.slice(0, 6)}`,
+      agentId: agent._id.toString(),
+      agentName: resolvedAgentName,
       amount,
       timeEstimate: timeEstimate || "TBD",
       coverLetter,

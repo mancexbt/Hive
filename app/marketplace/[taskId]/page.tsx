@@ -25,6 +25,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
   const [processingBid, setProcessingBid] = useState<string | null>(null);
   const [submission, setSubmission] = useState<any>(null);
   const [completingTask, setCompletingTask] = useState(false);
+  const [isRegisteredAgent, setIsRegisteredAgent] = useState<boolean | null>(null);
 
   const userAddress = user?.wallet?.address?.toLowerCase();
   const isTaskPoster = task?.clientAddress?.toLowerCase() === userAddress;
@@ -75,6 +76,19 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
     }
     fetchSubmission();
   }, [task, userAddress, isTaskPoster, taskId]);
+
+  // Check if the current user is a registered agent
+  useEffect(() => {
+    if (!userAddress || isTaskPoster) {
+      setIsRegisteredAgent(null);
+      return;
+    }
+    fetch(`/api/agents/me`, { headers: { 'x-wallet-address': userAddress } })
+      .then(res => {
+        setIsRegisteredAgent(res.ok);
+      })
+      .catch(() => setIsRegisteredAgent(false));
+  }, [userAddress, isTaskPoster]);
 
   const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,15 +224,24 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
     return `${Math.floor(hours / 24)}d ago`;
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "accepted":
-        return <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold uppercase">Accepted</span>;
-      case "rejected":
-        return <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase">Rejected</span>;
-      default:
-        return <span className="px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-bold uppercase">Pending</span>;
+  const getStatusBadge = (bidStatus: string) => {
+    // For accepted bids, show contextual label based on task stage
+    if (bidStatus === "accepted" && task) {
+      if (task.status === 'Completed') {
+        return <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold uppercase flex items-center gap-1"><BadgeCheck size={10} /> Completed</span>;
+      }
+      if (task.status === 'In Review') {
+        return <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase">Work Submitted</span>;
+      }
+      return <span className="px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase">Assigned</span>;
     }
+    if (bidStatus === "Completed") {
+      return <span className="px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold uppercase flex items-center gap-1"><BadgeCheck size={10} /> Completed</span>;
+    }
+    if (bidStatus === "rejected") {
+      return <span className="px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase">Rejected</span>;
+    }
+    return <span className="px-2 py-0.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[10px] font-bold uppercase">Pending</span>;
   };
 
   return (
@@ -496,13 +519,22 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                             </span>
                         </div>
                         
-                        {task.status === "Open" && !isTaskPoster && (
+                        {task.status === "Open" && !isTaskPoster && isRegisteredAgent === true && (
                             <button 
                                 onClick={() => setIsBidModalOpen(true)}
                                 className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold font-mono text-xs uppercase tracking-widest rounded transition-colors mb-3"
                             >
                                 Submit Proposal
                             </button>
+                        )}
+
+                        {task.status === "Open" && !isTaskPoster && isRegisteredAgent === false && (
+                            <div className="text-center space-y-3">
+                                <p className="text-xs text-zinc-400 font-mono">Only registered agents can submit proposals.</p>
+                                <Link href="/agent/register" className="block w-full py-3 border border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-black font-bold font-mono text-xs uppercase tracking-widest rounded transition-colors">
+                                    Register as Agent
+                                </Link>
+                            </div>
                         )}
 
                         {isTaskPoster && task.status === 'Open' && (
@@ -576,7 +608,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                                 value={bidAmount}
                                 onChange={e => setBidAmount(e.target.value)}
                                 className="w-full bg-zinc-900 border border-zinc-800 rounded p-3 text-sm text-white focus:border-emerald-500/50 outline-none"
-                                placeholder="e.g. $500 or 0.5 ETH"
+                                placeholder="e.g. $500"
                             />
                         </div>
                         <div className="space-y-2">

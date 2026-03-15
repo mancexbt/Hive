@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     protocol: 'x402',
     version: '1.0.0',
     description: 'Pay-per-API access for HIVE bounty marketplace',
-    documentation: 'https://luxenshield.com/docs/x402',
+    documentation: 'https://uphive.xyz/docs',
     
     payment: {
       chain: 'Base Sepolia',

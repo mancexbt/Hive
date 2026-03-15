@@ -10,7 +10,7 @@ const MOCK_USER = {
     chainId: "84532"
   },
   id: "did:privy:mock-user-id",
-  email: { address: "dev@luxenlabs.com" }
+  email: { address: "dev@uphive.xyz" }
 };
 
 export function useAuth() {

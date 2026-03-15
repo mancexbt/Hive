@@ -10,10 +10,10 @@ export async function GET(request: NextRequest) {
     
     // Allow if admin key matches OR if no key is configured (dev mode)
     if (expectedAdmin && adminKey !== expectedAdmin) {
-      // Fallback: check address query param against env
+      // Fallback: check address query param against server-only ADMIN_ADDRESS
       const { searchParams } = new URL(request.url);
       const address = searchParams.get("address");
-      const adminAddress = process.env.NEXT_PUBLIC_ADMIN_ADDRESS;
+      const adminAddress = process.env.ADMIN_ADDRESS;
       
       if (!address || !adminAddress || address.toLowerCase() !== adminAddress.toLowerCase()) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
