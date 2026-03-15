@@ -6,6 +6,15 @@ import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 // GET /api/tasks — List tasks with optional filters
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const rl = checkRateLimit(`list-tasks:${ip}`, RATE_LIMITS.READ);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+    
     const db = await getDb();
     const { searchParams } = new URL(request.url);
 
