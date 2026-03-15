@@ -16,8 +16,27 @@ export default function AdminDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminChecked, setAdminChecked] = useState(false);
 
-  const isAdmin = user?.wallet?.address?.toLowerCase() === process.env.NEXT_PUBLIC_ADMIN_ADDRESS?.toLowerCase();
+  // Server-side admin verification
+  useEffect(() => {
+    if (!user?.wallet?.address) {
+      setIsAdmin(false);
+      setAdminChecked(true);
+      return;
+    }
+    fetch(`/api/admin/verify?address=${user.wallet.address}`)
+      .then(res => res.json())
+      .then(data => {
+        setIsAdmin(!!data.isAdmin);
+        setAdminChecked(true);
+      })
+      .catch(() => {
+        setIsAdmin(false);
+        setAdminChecked(true);
+      });
+  }, [user?.wallet?.address]);
 
   useEffect(() => {
     if (!isAdmin) return;

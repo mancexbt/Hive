@@ -4,7 +4,7 @@ import { use, useState, useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, Clock, Coins, CheckCircle, X, Loader2, ChevronDown, ChevronUp, UserCheck, XCircle, ExternalLink } from "lucide-react";
+import { ArrowLeft, Clock, Coins, CheckCircle, X, Loader2, ChevronDown, ChevronUp, UserCheck, XCircle, ExternalLink, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
   const [expandedBid, setExpandedBid] = useState<string | null>(null);
   const [processingBid, setProcessingBid] = useState<string | null>(null);
   const [submission, setSubmission] = useState<any>(null);
+  const [completingTask, setCompletingTask] = useState(false);
 
   const userAddress = user?.wallet?.address?.toLowerCase();
   const isTaskPoster = task?.clientAddress?.toLowerCase() === userAddress;
@@ -31,43 +32,49 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
   // Fetch task + bids from API
   useEffect(() => {
     async function fetchData() {
-      console.log(`[TaskDetails] Fetching data for taskId:`, taskId);
       setLoading(true);
       try {
-        const [taskRes, bidsRes, submissionRes] = await Promise.all([
+        const [taskRes, bidsRes] = await Promise.all([
           fetch(`/api/tasks/${taskId}`),
           fetch(`/api/tasks/${taskId}/bids`),
-          fetch(`/api/tasks/${taskId}/submit`),
         ]);
-        console.log(`[TaskDetails] Statuses - Task: ${taskRes.status}, Bids: ${bidsRes.status}`);
         
         if (taskRes.ok) {
           const taskData = await taskRes.json();
-          console.log(`[TaskDetails] Task data:`, taskData);
           setTask(taskData);
-        } else {
-          console.error(`[TaskDetails] Failed to fetch task. Status:`, taskRes.status);
-          const errText = await taskRes.text();
-          console.error(`[TaskDetails] Error text:`, errText);
         }
         
         if (bidsRes.ok) {
           const data = await bidsRes.json();
           setBids(data.bids || []);
         }
-
-        if (submissionRes.ok) {
-          const subData = await submissionRes.json();
-          setSubmission(subData.submission || null);
-        }
       } catch (err) {
-        console.error("[TaskDetails] Failed to fetch task completely:", err);
+        console.error("[TaskDetails] Failed to fetch task:", err);
       } finally {
         setLoading(false);
       }
     }
     fetchData();
   }, [taskId]);
+
+  // Fetch submission only if the user is the task poster
+  useEffect(() => {
+    if (!task || !userAddress || !isTaskPoster) return;
+    if (task.status !== 'In Review' && task.status !== 'Completed') return;
+
+    async function fetchSubmission() {
+      try {
+        const res = await fetch(`/api/tasks/${taskId}/submit?address=${userAddress}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSubmission(data.submission || null);
+        }
+      } catch (err) {
+        console.error("[TaskDetails] Failed to fetch submission:", err);
+      }
+    }
+    fetchSubmission();
+  }, [task, userAddress, isTaskPoster, taskId]);
 
   const handleBidSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,7 +132,6 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
         throw new Error(err.error || "Failed to update proposal");
       }
 
-      // Update local state
       if (status === "accepted") {
         setBids((prev) =>
           prev.map((b) => ({
@@ -145,6 +151,29 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
       toast.error("Error", { description: error.message });
     } finally {
       setProcessingBid(null);
+    }
+  };
+
+  const handleCompleteTask = async () => {
+    setCompletingTask(true);
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientAddress: user?.wallet?.address }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to complete task");
+      }
+
+      setTask((prev: any) => prev ? { ...prev, status: "Completed" } : prev);
+      toast.success("Task Completed!", { description: "The work has been approved and the task is now closed." });
+    } catch (error: any) {
+      toast.error("Error", { description: error.message });
+    } finally {
+      setCompletingTask(false);
     }
   };
 
@@ -225,6 +254,18 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                                 In Progress
                             </span>
                         )}
+                        {task.status === 'In Review' && (
+                            <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] uppercase tracking-wider text-amber-500 font-bold font-mono flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                In Review
+                            </span>
+                        )}
+                        {task.status === 'Completed' && (
+                            <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] uppercase tracking-wider text-green-500 font-bold font-mono flex items-center gap-1">
+                                <BadgeCheck className="w-3 h-3" />
+                                Completed
+                            </span>
+                        )}
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">{task.title}</h1>
                     <div className="flex items-center gap-6 text-sm text-zinc-500 font-mono">
@@ -280,8 +321,8 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                 </div>
                 )}
 
-                {/* Work Submission View */}
-                {submission && (
+                {/* Work Submission View — only visible to task poster */}
+                {isTaskPoster && submission && (
                     <div className="mt-12 p-8 border border-emerald-500/30 bg-emerald-500/5 rounded-xl">
                         <h3 className="text-xl font-bold font-mono uppercase text-emerald-400 mb-6 flex items-center gap-3">
                             <CheckCircle className="w-6 h-6" /> Work Submitted
@@ -325,8 +366,20 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                                 </div>
                             )}
 
-                            <div className="pt-4 border-t border-emerald-500/20 text-xs text-zinc-500 font-mono">
-                                Submitted on {new Date(submission.createdAt).toLocaleDateString()}
+                            <div className="pt-4 border-t border-emerald-500/20 flex items-center justify-between">
+                                <span className="text-xs text-zinc-500 font-mono">
+                                    Submitted on {new Date(submission.createdAt).toLocaleDateString()}
+                                </span>
+                                {task.status === 'In Review' && (
+                                    <button
+                                        onClick={handleCompleteTask}
+                                        disabled={completingTask}
+                                        className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold font-mono text-xs uppercase tracking-widest rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all disabled:opacity-50"
+                                    >
+                                        {completingTask ? <Loader2 size={14} className="animate-spin" /> : <BadgeCheck size={14} />}
+                                        Approve & Complete Task
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -452,9 +505,27 @@ export default function TaskDetailsPage({ params }: { params: Promise<{ taskId: 
                             </button>
                         )}
 
-                        {isTaskPoster && (
+                        {isTaskPoster && task.status === 'Open' && (
                             <div className="text-center py-3 bg-zinc-800/50 border border-zinc-700 rounded text-xs font-mono text-zinc-400 uppercase tracking-widest">
                                 Your Task — Review proposals below
+                            </div>
+                        )}
+
+                        {task.status === 'In Progress' && (
+                            <div className="text-center py-3 bg-blue-500/10 border border-blue-500/20 rounded text-xs font-mono text-blue-400 uppercase tracking-widest">
+                                Agent assigned — awaiting deliverables
+                            </div>
+                        )}
+
+                        {isTaskPoster && task.status === 'In Review' && (
+                            <div className="text-center py-3 bg-amber-500/10 border border-amber-500/20 rounded text-xs font-mono text-amber-400 uppercase tracking-widest">
+                                Work submitted — review below
+                            </div>
+                        )}
+
+                        {task.status === 'Completed' && (
+                            <div className="text-center py-3 bg-green-500/10 border border-green-500/20 rounded text-xs font-mono text-green-400 uppercase tracking-widest flex items-center justify-center gap-2">
+                                <BadgeCheck size={14} /> Task Completed
                             </div>
                         )}
 

@@ -9,11 +9,23 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(false);
   const pathname = usePathname();
   const { user, login, logout, ready, authenticated } = useAuth();
 
-  const isAdmin = user?.wallet?.address?.toLowerCase() === process.env.NEXT_PUBLIC_ADMIN_ADDRESS?.toLowerCase();
   const displayAddress = user?.wallet?.address ? `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}` : "";
+
+  // Server-side admin check — admin address is never exposed in the client bundle
+  React.useEffect(() => {
+    if (!user?.wallet?.address) {
+      setIsAdmin(false);
+      return;
+    }
+    fetch(`/api/admin/verify?address=${user.wallet.address}`)
+      .then(res => res.json())
+      .then(data => setIsAdmin(!!data.isAdmin))
+      .catch(() => setIsAdmin(false));
+  }, [user?.wallet?.address]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-[#1A1A1A]">

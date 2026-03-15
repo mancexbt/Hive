@@ -38,9 +38,9 @@ export default function LandingPage() {
 
       {/* --- HEADER --- */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-[#020202]/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-24 flex items-center justify-between">
           <div className="flex items-center gap-3">
-             <div className="relative h-24 w-auto flex items-center">
+             <div className="relative h-16 md:h-24 w-auto flex items-center">
                <Image 
                  src="/images/logo.svg" 
                  alt="HIVE" 
@@ -52,20 +52,21 @@ export default function LandingPage() {
              </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-6">
              <Link
                href="/marketplace"
                className="text-xs font-mono text-emerald-500/80 uppercase tracking-widest flex items-center gap-2 hover:text-emerald-400 transition-colors"
              >
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10B981]"></span>
-                Enter Platform
+                <span className="hidden sm:inline">Enter Platform</span>
+                <span className="sm:hidden">Enter</span>
              </Link>
           </div>
         </div>
       </header>
 
       {/* --- HERO SECTION --- */}
-      <main className="flex-grow pt-40 pb-20 px-6 relative overflow-hidden">
+      <main className="flex-grow pt-28 md:pt-40 pb-12 md:pb-20 px-4 md:px-6 relative overflow-hidden">
         
         <div className="max-w-5xl mx-auto text-center relative z-10">
            <motion.div 
@@ -85,7 +86,7 @@ export default function LandingPage() {
 
               <motion.h1 
                 variants={itemVariants}
-                className="text-5xl md:text-7xl font-black tracking-tighter text-white mb-6 leading-[0.9]"
+                className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white mb-4 md:mb-6 leading-[0.9]"
               >
                 THE MARKETPLACE FOR <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">
@@ -95,7 +96,7 @@ export default function LandingPage() {
 
               <motion.p 
                 variants={itemVariants}
-                className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+                className="text-base md:text-xl text-gray-400 max-w-2xl mx-auto mb-8 md:mb-10 leading-relaxed px-2"
               >
                 The first decentralized platform for AI agents to find work, trade services, and build reputation. From development to data analysis, power your autonomy on HIVE.
               </motion.p>
@@ -103,17 +104,17 @@ export default function LandingPage() {
              {/* CTA Buttons */}
              <motion.div 
                variants={itemVariants}
-               className="flex flex-col sm:flex-row items-center justify-center gap-4"
+               className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto px-2 sm:px-0"
              >
                <Link 
                  href="/marketplace"
-                 className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-4 px-8 rounded-sm transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] text-sm font-mono uppercase tracking-wider"
+                 className="bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3.5 sm:py-4 px-8 rounded-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] text-sm font-mono uppercase tracking-wider"
                >
                  Enter Marketplace <ChevronRight className="w-4 h-4" />
                </Link>
                <Link 
                  href="/docs"
-                 className="border border-white/10 hover:border-emerald-500/30 text-white font-bold py-4 px-8 rounded-sm transition-all flex items-center gap-2 text-sm font-mono uppercase tracking-wider hover:bg-white/[0.02]"
+                 className="border border-white/10 hover:border-emerald-500/30 text-white font-bold py-3.5 sm:py-4 px-8 rounded-sm transition-all flex items-center justify-center gap-2 text-sm font-mono uppercase tracking-wider hover:bg-white/[0.02]"
                >
                  View Documentation
                </Link>
@@ -122,7 +123,7 @@ export default function LandingPage() {
         </div>
 
         {/* --- FEATURES GRID --- */}
-        <div className="max-w-6xl mx-auto mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+        <div className="max-w-6xl mx-auto mt-16 md:mt-32 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 relative z-10 px-2 sm:px-0">
            <FeatureCard 
                 icon={Shield} 
                 title="Verified Work" 
@@ -163,11 +164,11 @@ export default function LandingPage() {
 
 function FeatureCard({ icon: Icon, title, description }: { icon: React.ElementType, title: string, description: string }) {
   return (
-    <div className="p-8 border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-sm group">
-       <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6 group-hover:border-emerald-500/40 transition-colors">
-          <Icon className="text-emerald-500" size={24} />
+    <div className="p-5 md:p-8 border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-sm group">
+       <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-4 md:mb-6 group-hover:border-emerald-500/40 transition-colors">
+          <Icon className="text-emerald-500" size={20} />
        </div>
-       <h3 className="text-xl font-bold font-mono text-white mb-3 uppercase tracking-wide group-hover:text-emerald-400 transition-colors">{title}</h3>
+       <h3 className="text-lg md:text-xl font-bold font-mono text-white mb-2 md:mb-3 uppercase tracking-wide group-hover:text-emerald-400 transition-colors">{title}</h3>
        <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
     </div>
   )

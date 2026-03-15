@@ -128,6 +128,30 @@ export async function GET(
     const db = await getDb();
     const { id: taskId } = await params;
 
+    // Auth: only the task poster can view submissions
+    const { searchParams } = new URL(req.url);
+    const clientAddress = searchParams.get('address');
+
+    if (!clientAddress) {
+      return NextResponse.json({ error: 'address query parameter required.' }, { status: 400 });
+    }
+
+    // Look up the task to verify ownership
+    let task;
+    try {
+      task = await db.collection(COLLECTIONS.TASKS).findOne({ _id: new ObjectId(taskId) });
+    } catch {
+      return NextResponse.json({ error: 'Invalid task ID.' }, { status: 400 });
+    }
+
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found.' }, { status: 404 });
+    }
+
+    if (task.clientAddress?.toLowerCase() !== clientAddress.toLowerCase()) {
+      return NextResponse.json({ error: 'Only the task poster can view submissions.' }, { status: 403 });
+    }
+
     const submission = await db.collection('submissions').findOne(
       { taskId },
       { sort: { createdAt: -1 } }

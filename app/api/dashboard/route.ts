@@ -84,6 +84,7 @@ export async function GET(request: NextRequest) {
       totalPosted: postedTasks.length,
       openTasks: postedTasks.filter((t) => t.status === "Open").length,
       inProgressTasks: postedTasks.filter((t) => t.status === "In Progress").length,
+      inReviewTasks: postedTasks.filter((t) => t.status === "In Review").length,
       completedTasks: postedTasks.filter((t) => t.status === "Completed").length,
       totalBidsSubmitted: myBids.length,
       activeBids: myBids.filter((b) => b.status === "Pending").length,

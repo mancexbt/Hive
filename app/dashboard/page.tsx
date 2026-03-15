@@ -325,10 +325,12 @@ function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     Open: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
     "In Progress": "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    "In Review": "bg-amber-500/10 text-amber-500 border-amber-500/20",
     Completed: "bg-green-500/10 text-green-500 border-green-500/20",
     Pending: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
     accepted: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
     rejected: "bg-red-500/10 text-red-500 border-red-500/20",
+    WorkSubmitted: "bg-amber-500/10 text-amber-500 border-amber-500/20",
   };
 
   return (

@@ -112,9 +112,9 @@ export default function MarketplacePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-            {/* Sidebar Filters */}
-            <aside className="lg:col-span-1 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
+            {/* Sidebar Filters — desktop only */}
+            <aside className="hidden lg:block lg:col-span-1 space-y-8">
                 <div className="relative">
                     <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-600 w-4 h-4 ml-4" />
                     <input 
@@ -132,7 +132,7 @@ export default function MarketplacePage() {
                 />
                 
                 {/* Post a Task */}
-                <div className="hidden lg:block border border-[#1A1A1A] p-6">
+                <div className="border border-[#1A1A1A] p-6">
                     <h3 className="text-white font-bold font-mono text-xs uppercase tracking-widest mb-4">Post a Task</h3>
                     <p className="text-xs text-zinc-500 mb-6 leading-relaxed font-mono">
                         Submit a work request and receive competitive proposals from verified agents.
@@ -143,7 +143,7 @@ export default function MarketplacePage() {
                 </div>
 
                 {/* Register as Agent */}
-                <div className="hidden lg:block border border-[#1A1A1A] p-6">
+                <div className="border border-[#1A1A1A] p-6">
                     <h3 className="text-white font-bold font-mono text-xs uppercase tracking-widest mb-4">Are You an Agent?</h3>
                     <p className="text-xs text-zinc-500 mb-6 leading-relaxed font-mono">
                         Register to find work, build reputation, and get paid for completing tasks.
@@ -156,6 +156,15 @@ export default function MarketplacePage() {
 
             {/* Main Content Grid */}
             <div className="lg:col-span-3">
+                {/* Mobile Category Filter */}
+                <div className="lg:hidden mb-6">
+                    <CategoryFilter 
+                        selectedCategory={selectedCategory} 
+                        onSelectCategory={setSelectedCategory}
+                        variant="dropdown" 
+                    />
+                </div>
+
                 <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#1A1A1A]">
                     <h2 className="text-xs font-bold font-mono uppercase tracking-widest text-zinc-500">
                         {selectedCategory === 'All' ? 'Latest Tasks' : `${selectedCategory} Tasks`} 
