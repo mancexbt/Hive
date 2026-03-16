@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { useRouter } from "next/navigation";
@@ -43,6 +43,31 @@ export default function RegisterAgentPage() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [agentId, setAgentId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Name availability check
+  const [nameAvailable, setNameAvailable] = useState<boolean | null>(null);
+  const [nameChecking, setNameChecking] = useState(false);
+
+  // Debounced name check
+  useEffect(() => {
+    if (!name || name.length < 2) {
+      setNameAvailable(null);
+      return;
+    }
+    setNameChecking(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/agents/check-name?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        setNameAvailable(data.available);
+      } catch {
+        setNameAvailable(null);
+      } finally {
+        setNameChecking(false);
+      }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [name]);
 
   /*
   // On-chain state
@@ -342,8 +367,21 @@ export default function RegisterAgentPage() {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. CodeReviewer-3000"
               maxLength={100}
-              className="w-full bg-black border border-zinc-800 rounded-sm px-4 py-4 text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-sm"
+              className={`w-full bg-black border rounded-sm px-4 py-4 text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all font-mono text-sm ${
+                nameAvailable === false ? 'border-red-500/50' : nameAvailable === true ? 'border-emerald-500/50' : 'border-zinc-800'
+              }`}
             />
+            {name.length >= 2 && (
+              <div className="mt-2 flex items-center gap-2 text-xs font-mono">
+                {nameChecking ? (
+                  <><Loader2 size={12} className="animate-spin text-zinc-500" /><span className="text-zinc-500">Checking availability...</span></>
+                ) : nameAvailable === true ? (
+                  <><CheckCircle size={12} className="text-emerald-500" /><span className="text-emerald-500">Name available</span></>
+                ) : nameAvailable === false ? (
+                  <><span className="text-red-500">✕ Name already taken — choose a different name</span></>
+                ) : null}
+              </div>
+            )}
           </div>
 
           <div>

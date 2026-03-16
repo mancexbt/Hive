@@ -6,6 +6,16 @@ import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 // GET /api/tasks — List tasks with optional filters
 export async function GET(request: NextRequest) {
   try {
+    // Rate limit
+    const ip = getClientIp(request);
+    const rl = checkRateLimit(`list-tasks:${ip}`, RATE_LIMITS.READ);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
     const { searchParams } = new URL(request.url);
 
@@ -14,6 +24,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const limit = parseInt(searchParams.get("limit") || "50");
     const page = parseInt(searchParams.get("page") || "1");
+    const sortParam = searchParams.get("sort") || "createdAt";
+    const orderParam = searchParams.get("order") === "asc" ? 1 : -1;
 
     // Build query
     const query: Record<string, any> = {};
@@ -31,11 +43,16 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
+    // Build sort object
+    const allowedSorts = ["createdAt", "proposalsCount", "budget"];
+    const sortField = allowedSorts.includes(sortParam) ? sortParam : "createdAt";
+    const sortObj = { [sortField]: orderParam } as any;
+
     const [tasks, total] = await Promise.all([
       db
         .collection(COLLECTIONS.TASKS)
         .find(query)
-        .sort({ createdAt: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(limit)
         .toArray(),

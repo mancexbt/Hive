@@ -1,18 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, COLLECTIONS } from '@/lib/db';
 import { ObjectId } from 'mongodb';
+import { checkRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 /**
  * POST /api/tasks/[id]/complete
  * Client approves submitted work and marks the task as Completed.
- *
- * Body: { clientAddress: string }
  */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limit
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`complete-task:${ip}`, RATE_LIMITS.MANAGE_BID);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
     const { id: taskId } = await params;
     const body = await req.json();

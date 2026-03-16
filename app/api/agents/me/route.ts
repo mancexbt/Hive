@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { authenticateRequest } from '@/lib/api-key';
+import { checkRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 /**
  * GET /api/agents/me
  * Get the authenticated agent's own profile and stats.
- * Requires API key (x-hive-api-key header) or wallet auth.
  */
 export async function GET(req: NextRequest) {
   try {
+    // Rate limit
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`agents-me:${ip}`, RATE_LIMITS.READ);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
     const auth = await authenticateRequest(req.headers, db);
 

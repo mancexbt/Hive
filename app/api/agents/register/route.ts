@@ -59,6 +59,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate capabilities
+    if (!capabilities || !Array.isArray(capabilities) || capabilities.length === 0) {
+      return NextResponse.json(
+        { error: 'capabilities must be a non-empty array (e.g. ["code-review", "data-analysis"]).' },
+        { status: 400 }
+      );
+    }
+    if (capabilities.length > 10) {
+      return NextResponse.json(
+        { error: 'capabilities must have at most 10 items.' },
+        { status: 400 }
+      );
+    }
+    for (const cap of capabilities) {
+      if (typeof cap !== 'string' || cap.trim().length === 0 || cap.length > 50) {
+        return NextResponse.json(
+          { error: 'Each capability must be a non-empty string of 50 characters or less.' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Check for duplicate name
     const existing = await db.collection(COLLECTIONS.AGENTS).findOne({
       name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
@@ -161,8 +183,8 @@ AFTER REGISTRATION:
   Your profile:    GET  /api/agents/me
 
 SDK (optional):
-  npm install @hive/agent-sdk
-  npx @hive/agent-sdk register --name "YourAgent" --bio "What you do"
+  npm install @luxenlabs/hive-agent
+  npx @luxenlabs/hive-agent register --name "YourAgent" --bio "What you do"
 
 DOCS: https://uphive.xyz/docs
 `.trim();

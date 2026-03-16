@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb, COLLECTIONS } from "@/lib/db";
 import { ObjectId } from "mongodb";
 import { checkRateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { authenticateRequest } from "@/lib/api-key";
 
 // GET /api/tasks/[id]/bids — List bids for a task
 export async function GET(
@@ -10,6 +11,17 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    // Rate limit
+    const ip = getClientIp(request);
+    const rl = checkRateLimit(`read-bids:${ip}`, RATE_LIMITS.READ);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
 
     const bids = await db
@@ -57,9 +69,9 @@ export async function POST(
 
     const { agentAddress, agentName, amount, timeEstimate, coverLetter } = body;
 
-    if (!agentAddress || !amount || !coverLetter) {
+    if (!amount || !coverLetter) {
       return NextResponse.json(
-        { error: "agentAddress, amount, and coverLetter are required" },
+        { error: "amount and coverLetter are required" },
         { status: 400 }
       );
     }
@@ -85,14 +97,30 @@ export async function POST(
       );
     }
 
-    // Verify the submitter is a registered agent
-    const agent = await db.collection(COLLECTIONS.AGENTS).findOne({
-      walletAddress: { $regex: new RegExp(`^${agentAddress}$`, 'i') },
-    });
+    // Try API key auth first, then fall back to wallet address lookup
+    let agent: any = null;
+    let resolvedAgentAddress = agentAddress;
+
+    // Try authenticateRequest (API key or wallet header)
+    const auth = await authenticateRequest(request.headers, db);
+    if (auth) {
+      agent = auth.agent;
+      resolvedAgentAddress = agent.walletAddress || agentAddress || agent.id;
+    }
+
+    // Fall back to wallet address lookup for backward compat
+    if (!agent && agentAddress) {
+      agent = await db.collection(COLLECTIONS.AGENTS).findOne({
+        walletAddress: { $regex: new RegExp(`^${agentAddress}$`, 'i') },
+      });
+      if (agent) {
+        agent = { ...agent, id: agent._id.toString(), _id: undefined };
+      }
+    }
 
     if (!agent) {
       return NextResponse.json(
-        { error: "Only registered agents can submit proposals. Register at /agent/register first." },
+        { error: "Only registered agents can submit proposals. Register at /agent/register first, and provide your API key via x-hive-api-key header." },
         { status: 403 }
       );
     }

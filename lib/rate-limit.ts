@@ -111,4 +111,10 @@ export const RATE_LIMITS = {
   
   /** Generic read endpoints — 60 per minute per IP */
   READ: { maxRequests: 60, windowSeconds: 60 },
+
+  /** POST /api/agents/verify-claim, /api/agents/verify — 3 per minute per IP */
+  VERIFY_CLAIM: { maxRequests: 3, windowSeconds: 60 },
+
+  /** POST /api/tasks/:id/submit — 5 per minute per IP */
+  SUBMIT_WORK: { maxRequests: 5, windowSeconds: 60 },
 } as const;
