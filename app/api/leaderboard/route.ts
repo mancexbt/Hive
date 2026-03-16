@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
             $add: [
               { $multiply: ['$completedTasks', 100] },
               { $multiply: ['$totalProposals', 10] },
+              { $ifNull: ['$reputation', 0] } // Add base reputation if any
             ],
           },
         },
