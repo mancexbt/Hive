@@ -6,7 +6,7 @@ import { CategoryFilter } from "@/components/marketplace/CategoryFilter";
 import { TaskCard } from "@/components/marketplace/TaskCard";
 import { useState, useEffect } from "react";
 import { TaskCategory } from "@/lib/types/task";
-import { Search, Loader2, Users, FileText, CheckCircle, Zap, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Wallet } from "lucide-react";
+import { Search, Loader2, Users, FileText, CheckCircle, Zap, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Wallet, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
@@ -15,6 +15,8 @@ const TASKS_PER_PAGE = 12;
 export default function MarketplacePage() {
   const [selectedCategory, setSelectedCategory] = useState<TaskCategory | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<string>('newest');
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
@@ -51,7 +53,7 @@ export default function MarketplacePage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, statusFilter, sortBy]);
 
   // Fetch tasks from API with pagination
   useEffect(() => {
@@ -61,20 +63,23 @@ export default function MarketplacePage() {
         const params = new URLSearchParams();
         if (selectedCategory !== 'All') params.set("category", selectedCategory);
         if (searchQuery) params.set("search", searchQuery);
+        if (statusFilter !== 'All') params.set("status", statusFilter);
         params.set("limit", String(TASKS_PER_PAGE));
         params.set("page", String(currentPage));
+
+        // Map sort UI option to API params
+        const sortMap: Record<string, { sort: string; order: string }> = {
+          newest: { sort: 'createdAt', order: 'desc' },
+          oldest: { sort: 'createdAt', order: 'asc' },
+          proposals: { sort: 'proposalsCount', order: 'desc' },
+        };
+        const { sort, order } = sortMap[sortBy] || sortMap.newest;
+        params.set("sort", sort);
+        params.set("order", order);
 
         const res = await fetch(`/api/tasks?${params.toString()}`);
         const data = await res.json();
         const fetched = data.tasks || [];
-        
-        const statusOrder: Record<string, number> = { 'Open': 0, 'In Progress': 1, 'In Review': 2, 'Completed': 3 };
-        fetched.sort((a: any, b: any) => {
-          const sa = statusOrder[a.status] ?? 1;
-          const sb = statusOrder[b.status] ?? 1;
-          if (sa !== sb) return sa - sb;
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
         
         setTasks(fetched);
         setTotalTasks(data.total || 0);
@@ -87,7 +92,7 @@ export default function MarketplacePage() {
 
     const timeout = setTimeout(fetchTasks, 300);
     return () => clearTimeout(timeout);
-  }, [selectedCategory, searchQuery, currentPage]);
+  }, [selectedCategory, searchQuery, currentPage, statusFilter, sortBy]);
 
   const goToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -171,17 +176,30 @@ export default function MarketplacePage() {
         </div>
 
         {/* Platform Stats Bar */}
-        {stats && (
-          <div className="w-full backdrop-blur-sm rounded-lg mb-12 overflow-x-auto" style={{ border: `1px solid ${c.border}`, background: c.bgStat }}>
-            <div className="grid grid-cols-2 md:grid-cols-5 min-w-[320px]" style={{ borderColor: c.border }}>
-              <StatItem icon={<FileText size={14} />} label="Total Tasks" value={stats.totalTasks} isDark={isDark} />
-              <StatItem icon={<Zap size={14} />} label="Open Tasks" value={stats.openTasks} color="text-emerald-500" isDark={isDark} border={c.border} />
-              <StatItem icon={<Users size={14} />} label="Registered Agents" value={stats.totalAgents} color="text-blue-500" isDark={isDark} border={c.border} />
-              <StatItem icon={<CheckCircle size={14} />} label="Completed" value={stats.completedTasks} color="text-green-500" isDark={isDark} border={c.border} />
-              <StatItem icon={<FileText size={14} />} label="Total Proposals" value={stats.totalProposals} color="text-purple-500" isDark={isDark} border={c.border} />
-            </div>
+        <div className="w-full backdrop-blur-sm rounded-lg mb-12 overflow-x-auto transition-opacity duration-500" style={{ border: `1px solid ${c.border}`, background: c.bgStat, opacity: stats ? 1 : 0.6 }}>
+          <div className="grid grid-cols-2 md:grid-cols-5 min-w-[320px]" style={{ borderColor: c.border }}>
+            {stats ? (
+              <>
+                <StatItem icon={<FileText size={14} />} label="Total Tasks" value={stats.totalTasks} isDark={isDark} />
+                <StatItem icon={<Zap size={14} />} label="Open Tasks" value={stats.openTasks} color="text-emerald-500" isDark={isDark} border={c.border} />
+                <StatItem icon={<Users size={14} />} label="Registered Agents" value={stats.totalAgents} color="text-blue-500" isDark={isDark} border={c.border} />
+                <StatItem icon={<CheckCircle size={14} />} label="Completed" value={stats.completedTasks} color="text-green-500" isDark={isDark} border={c.border} />
+                <StatItem icon={<FileText size={14} />} label="Total Proposals" value={stats.totalProposals} color="text-purple-500" isDark={isDark} border={c.border} />
+              </>
+            ) : (
+              <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="p-4 text-center" style={i > 0 ? { borderLeft: `1px solid ${c.border}` } : {}}>
+                    <div className="flex items-center justify-center gap-1.5 mb-1">
+                      <div className="w-10 h-5 rounded bg-zinc-800/60 animate-pulse" />
+                    </div>
+                    <div className="mx-auto w-16 h-2.5 rounded bg-zinc-800/40 animate-pulse mt-1" />
+                  </div>
+                ))}
+              </>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
             {/* Sidebar Filters */}
@@ -241,16 +259,50 @@ export default function MarketplacePage() {
                     />
                 </div>
 
-                <div className="flex items-center justify-between mb-8 pb-4" style={{ borderBottom: `1px solid ${c.border}` }}>
-                    <h2 className="text-xs font-bold font-mono uppercase tracking-widest" style={{ color: c.textMuted }}>
-                        {selectedCategory === 'All' ? 'Latest Tasks' : `${selectedCategory} Tasks`} 
-                        <span className="ml-2" style={{ color: c.text }}>[{totalTasks}]</span>
-                    </h2>
-                    {totalPages > 1 && (
-                        <span className="text-[10px] font-mono" style={{ color: c.textDim }}>
-                            Page {currentPage} of {totalPages}
-                        </span>
-                    )}
+                {/* Status Filter & Sort Controls */}
+                <div className="flex flex-col gap-4 mb-8 pb-4" style={{ borderBottom: `1px solid ${c.border}` }}>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {['All', 'Open', 'In Progress', 'In Review', 'Completed'].map((s) => (
+                            <button
+                                key={s}
+                                onClick={() => setStatusFilter(s)}
+                                className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border rounded-sm transition-colors ${
+                                    statusFilter === s
+                                        ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10'
+                                        : 'text-zinc-500 hover:text-zinc-300'
+                                }`}
+                                style={statusFilter !== s ? { borderColor: c.border } : {}}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xs font-bold font-mono uppercase tracking-widest" style={{ color: c.textMuted }}>
+                            {selectedCategory === 'All' ? 'Latest Tasks' : `${selectedCategory} Tasks`} 
+                            <span className="ml-2" style={{ color: c.text }}>[{totalTasks}]</span>
+                        </h2>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
+                                <ArrowUpDown size={12} style={{ color: c.textDim }} />
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="bg-transparent text-[10px] font-mono uppercase tracking-widest outline-none cursor-pointer"
+                                    style={{ color: c.textSec, borderColor: c.border }}
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="proposals">Most Proposals</option>
+                                </select>
+                            </div>
+                            {totalPages > 1 && (
+                                <span className="text-[10px] font-mono" style={{ color: c.textDim }}>
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {loading ? (

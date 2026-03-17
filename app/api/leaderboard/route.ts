@@ -1,72 +1,130 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getDb, COLLECTIONS } from '@/lib/db';
 
 /**
  * GET /api/leaderboard
- * Returns all registered agents ranked by real platform activity.
- * Reputation = completedTasks * 100 + totalProposals * 10
+ * Paginated, performant leaderboard. Uses MongoDB aggregation
+ * instead of N+1 queries per agent.
+ *
+ * Query: ?page=1&limit=20
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20')));
+
     const db = await getDb();
 
-    // Fetch all agents
-    const agents = await db.collection(COLLECTIONS.AGENTS).find({}).toArray();
+    // Get total agent count for stats/pagination
+    const totalAgents = await db.collection(COLLECTIONS.AGENTS).countDocuments({});
 
-    // For each agent, calculate real stats
-    const agentStats = await Promise.all(
-      agents.map(async (agent) => {
-        const agentId = agent._id.toString();
-
-        // Count accepted/completed bids
-        const totalProposals = await db.collection(COLLECTIONS.BIDS).countDocuments({
-          $or: [
-            { agentId },
-            { agentAddress: { $regex: new RegExp(`^${(agent.walletAddress || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+    // Use aggregation pipeline to calculate stats efficiently
+    const pipeline = [
+      // Lookup bids (proposals) for each agent
+      {
+        $lookup: {
+          from: COLLECTIONS.BIDS,
+          let: { agentId: { $toString: '$_id' } },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$agentId', '$$agentId'] } } },
+            { $count: 'count' },
           ],
-        });
+          as: 'bidStats',
+        },
+      },
+      // Lookup submissions for each agent
+      {
+        $lookup: {
+          from: 'submissions',
+          let: { agentId: { $toString: '$_id' } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$agentId', '$$agentId'] },
+                    { $in: ['$status', ['Approved', 'Submitted']] },
+                  ],
+                },
+              },
+            },
+            { $count: 'count' },
+          ],
+          as: 'submissionStats',
+        },
+      },
+      // Add computed fields
+      {
+        $addFields: {
+          totalProposals: {
+            $ifNull: [{ $arrayElemAt: ['$bidStats.count', 0] }, 0],
+          },
+          completedTasks: {
+            $ifNull: [{ $arrayElemAt: ['$submissionStats.count', 0] }, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          computedReputation: {
+            $add: [
+              { $multiply: ['$completedTasks', 100] },
+              { $multiply: ['$totalProposals', 10] },
+              { $ifNull: ['$reputation', 0] } // Add base reputation if any
+            ],
+          },
+        },
+      },
+      // Sort by reputation
+      { $sort: { computedReputation: -1 as const } },
+      // Facet for pagination + totals
+      {
+        $facet: {
+          agents: [
+            { $skip: (page - 1) * limit },
+            { $limit: limit },
+            {
+              $project: {
+                id: { $toString: '$_id' },
+                name: { $ifNull: ['$name', 'Unnamed Agent'] },
+                bio: { $ifNull: ['$bio', 'No bio provided'] },
+                address: { $ifNull: ['$walletAddress', ''] },
+                reputation: '$computedReputation',
+                completedTasks: 1,
+                totalProposals: 1,
+                registeredAt: { $ifNull: ['$createdAt', '$registeredAt'] },
+              },
+            },
+          ],
+          totals: [
+            {
+              $group: {
+                _id: null,
+                totalReputation: { $sum: '$computedReputation' },
+                totalCompleted: { $sum: '$completedTasks' },
+              },
+            },
+          ],
+        },
+      },
+    ];
 
-        // Count completed submissions (approved)
-        const completedTasks = await db.collection('submissions').countDocuments({
-          agentId,
-          status: 'Approved',
-        });
+    const [result] = await db.collection(COLLECTIONS.AGENTS).aggregate(pipeline).toArray();
 
-        // Also count "Submitted" as work done
-        const submittedTasks = await db.collection('submissions').countDocuments({
-          agentId,
-          status: 'Submitted',
-        });
-
-        const totalCompleted = completedTasks + submittedTasks;
-        const reputation = totalCompleted * 100 + totalProposals * 10;
-
-        return {
-          id: agentId,
-          name: agent.name || 'Unnamed Agent',
-          bio: agent.bio || 'No bio provided',
-          address: agent.walletAddress || agent.address || '',
-          reputation,
-          completedTasks: totalCompleted,
-          totalProposals,
-          registeredAt: agent.createdAt || agent.registeredAt,
-        };
-      })
-    );
-
-    // Sort by reputation descending
-    agentStats.sort((a, b) => b.reputation - a.reputation);
-
-    // Summary stats
-    const totalReputation = agentStats.reduce((sum, a) => sum + a.reputation, 0);
-    const totalCompleted = agentStats.reduce((sum, a) => sum + a.completedTasks, 0);
+    const agents = result?.agents || [];
+    const totals = result?.totals?.[0] || { totalReputation: 0, totalCompleted: 0 };
 
     return NextResponse.json({
-      agents: agentStats,
+      agents,
+      total: totalAgents,
+      page,
+      limit,
+      totalPages: Math.ceil(totalAgents / limit),
       stats: {
-        totalAgents: agentStats.length,
-        totalReputation,
-        totalCompleted,
+        totalAgents,
+        totalReputation: totals.totalReputation,
+        totalCompleted: totals.totalCompleted,
       },
     });
   } catch (error) {

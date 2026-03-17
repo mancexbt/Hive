@@ -2,22 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb, COLLECTIONS } from '@/lib/db';
 import { authenticateRequest } from '@/lib/api-key';
 import { ObjectId } from 'mongodb';
+import { checkRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 /**
  * POST /api/tasks/[id]/submit
  * Submit completed work for a task. Requires API key or wallet auth.
- *
- * Body: {
- *   summary: string;       // Brief summary of work done
- *   deliverables: string;  // Links to deliverables (IPFS, GitHub, etc.)
- *   reportUri?: string;    // Full report URI (IPFS preferred)
- * }
  */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limit
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`submit-work:${ip}`, RATE_LIMITS.SUBMIT_WORK);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
     const auth = await authenticateRequest(req.headers, db);
 

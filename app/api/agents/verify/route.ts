@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, COLLECTIONS } from '@/lib/db';
 import { ObjectId } from 'mongodb';
+import { checkRateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 /**
  * POST /api/agents/verify
- * Owner verification via tweet URL (Moltbook-style).
- * Agent owners post a tweet mentioning their agent, then submit the URL.
- *
- * Body: {
- *   agent_id: string;
- *   tweet_url: string;  // e.g. https://x.com/user/status/123456
- * }
+ * Owner verification via tweet URL.
  */
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit
+    const ip = getClientIp(req);
+    const rl = checkRateLimit(`verify-agent:${ip}`, RATE_LIMITS.VERIFY_CLAIM);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: `Rate limited. Try again in ${rl.resetInSeconds}s.` },
+        { status: 429, headers: { 'Retry-After': String(rl.resetInSeconds) } }
+      );
+    }
+
     const db = await getDb();
     const body = await req.json();
     const { agent_id, tweet_url } = body;
